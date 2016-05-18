@@ -23,7 +23,6 @@ def read_data(fpath):
         assert(dtype == b'\x08')      
         #The 4-th byte codes the number of dimensions of the vector/matrix: 1 for vectors, 2 for matrices....
         n_dims = to_int(f.read(1))
-        # print(int.from_bytes(n_dims,"big"))
         #The sizes in each dimension are 4-byte integers (MSB first, high endian, like in most non-Intel processors).
         dims = [to_int(f.read(4)) for i in range(n_dims)]
         n_data = 1
