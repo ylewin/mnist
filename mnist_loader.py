@@ -20,7 +20,7 @@ def read_data(fpath):
         #0x0D: float (4 bytes) 
         #0x0E: double (8 bytes)
         dtype = f.read(1)
-        assert(dtype == b'\x08')      
+        assert(dtype == b'\x08') 
         #The 4-th byte codes the number of dimensions of the vector/matrix: 1 for vectors, 2 for matrices....
         n_dims = to_int(f.read(1))
         #The sizes in each dimension are 4-byte integers (MSB first, high endian, like in most non-Intel processors).
@@ -37,20 +37,41 @@ def read_data(fpath):
 
 
 
-def show_digit(indx, test_data=False):
+def print_digit(indx, test_data=False):
     if test_data:
-        plt.imshow(mnist[2][indx], cmap='Greys')
+        plot(mnist[2][indx])
         print(mnist[3][indx])
     else:
-        plt.imshow(mnist[0][indx], cmap='Greys')
+        plot(mnist[0][indx])
         print(mnist[1][indx])
+        
+def plot(img):
+    plt.imshow(img, cmap='Greys')
+        
 
-files_path = [
+        
+def grab_digit(d):
+    rv = []
+    for i in range(len(mnist[1])):
+        if mnist[1][i] == d:
+            rv.append(mnist[0][i])
+    return rv
+    
+    
+    
+def read_mnist_files(files_path=[
     r'Digits\train-images-idx3-ubyte\train-images.idx3-ubyte',
     r'Digits\train-labels-idx1-ubyte\train-labels.idx1-ubyte',
     r'Digits\t10k-images-idx3-ubyte\t10k-images.idx3-ubyte',
     r'Digits\t10k-labels-idx1-ubyte\t10k-labels.idx1-ubyte',
-]
-
-mnist = [read_data(path) for path in files_path]
+]):
+    global mnist
+    mnist = [read_data(path) for path in files_path]
+    return mnist
+    
+    
+    
+mnist = []    
+    
+    
 
