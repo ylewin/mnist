@@ -40,14 +40,25 @@ class Network(object):
     def updateNetwork(self, data, learn_rate=0.001):
         """ ''data'' is list of tuples (x, y) where x is
         the input and y is the wanted output"""
+        
+        errors = []
+        error = []
          
-        for x, y in data:
+        for i, (x, y) in enumerate(data):
             activations, zs = self.feedforward(x)
             nabla_w, nabla_b = self.network_deriv(activations, zs, y)
             for l in range(self.num_layers):
                 self.weights[l] -= learn_rate * nabla_w[l]
-                self.biases[l] -= learn_rate * nabla_b[l]       
-            print("error: ", self.costfunc(activations[-1], y))
+                self.biases[l] -= learn_rate * nabla_b[l]
+            error.append(self.costfunc(activations[-1], y))
+            if i % 5000 == 0 and i != 0:
+                errors.append(sum(error) / len(error))
+                if len(errors) > 1:
+                    print("mean error: ", errors[-1], "      delta error: ", errors[-1] - errors[-2])
+                else:
+                    print("mean error: ", errors[-1])
+                error = []
+            
         
         
     
@@ -98,7 +109,7 @@ class Network(object):
         
         
 
-nn = Network([28**2, 100, 10])
+nn = Network([28**2, 300, 10])
 
 def predict_digit(d):
     out = nn.feedforward(d.reshape(1, -1))[0][-1]
@@ -113,25 +124,37 @@ def evaluate_network(data):
 
     curr = 0.0
     for x, y in data:
-        if predict_digit(x) == check_output(y):
+        if predict_digit(x) == arr_to_digit(y):
             curr += 1.0
     return curr / len(data)
     
         
-def create_output(output):
+def digit_to_arr(d):
     rv = np.zeros((1,10))
-    rv[0][output] = 1
+    rv[0][d] = 1
     return rv
 
-def check_output(output):
-    m = output.max()
-    for i, v in enumerate(output[0]):
-        if v==m:
-            return i
+def arr_to_digit(arr):
+   return arr.argmax()
+            
+def create_data(mnist_data): 
+    return [(x.reshape(1, -1) / 255, digit_to_arr(y)) for x, y in \
+        zip(mnist_data[0], mnist_data[1])]
+        
+def create_test_data(mnist_data): 
+    return [(x.reshape(1, -1) / 255, digit_to_arr(y)) for x, y in \
+        zip(mnist_data[2], mnist_data[3])]
 
 
 
+def train(data, times, learn_rate = 0.001):
+    for i in range(times):
+        nn.updateNetwork(data, learn_rate)
 
+def print_num(data, idx):
+    mnist.plot(data[idx][0].reshape((28, 28)))
+    print(arr_to_digit(nn.feedforward(data[idx][0])[0][-1]))    
+    
 
 
 
